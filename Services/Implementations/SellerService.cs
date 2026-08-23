@@ -104,18 +104,37 @@ namespace AlaSaree3.Services.Implementations
                 return (false, "This request has already been processed.");
             }
 
-            request.Status = RequestStatus.Approved;
-            request.ReviewedAt = DateTime.UtcNow;
-
-            // Assign the Seller role
-            if (!await _userManager.IsInRoleAsync(request.User, "Seller"))
+            var user = request.User ?? await _userManager.FindByIdAsync(request.UserId);
+            if (user == null)
             {
-                var roleResult = await _userManager.AddToRoleAsync(request.User, "Seller");
-                if (!roleResult.Succeeded)
+                return (false, "Associated user account not found.");
+            }
+
+            // Verify the user is not already a Seller
+            if (await _userManager.IsInRoleAsync(user, "Seller"))
+            {
+                return (false, "User is already assigned the Seller role.");
+            }
+
+            // Remove Customer role if present (exclusive role transition)
+            if (await _userManager.IsInRoleAsync(user, "Customer"))
+            {
+                var removeResult = await _userManager.RemoveFromRoleAsync(user, "Customer");
+                if (!removeResult.Succeeded)
                 {
-                    return (false, string.Join(", ", roleResult.Errors.Select(e => e.Description)));
+                    return (false, string.Join(", ", removeResult.Errors.Select(e => e.Description)));
                 }
             }
+
+            // Assign the Seller role to the SAME ApplicationUser
+            var roleResult = await _userManager.AddToRoleAsync(user, "Seller");
+            if (!roleResult.Succeeded)
+            {
+                return (false, string.Join(", ", roleResult.Errors.Select(e => e.Description)));
+            }
+
+            request.Status = RequestStatus.Approved;
+            request.ReviewedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
             return (true, null);
@@ -123,7 +142,10 @@ namespace AlaSaree3.Services.Implementations
 
         public async Task<(bool Success, string? ErrorMessage)> RejectRequestAsync(int requestId, string? adminNotes)
         {
-            var request = await _context.SellerRequests.FindAsync(requestId);
+            var request = await _context.SellerRequests
+                .Include(r => r.User)
+                .FirstOrDefaultAsync(r => r.Id == requestId);
+
             if (request == null)
             {
                 return (false, "Seller request not found.");
@@ -138,6 +160,7 @@ namespace AlaSaree3.Services.Implementations
             request.ReviewedAt = DateTime.UtcNow;
             request.AdminNotes = adminNotes?.Trim();
 
+            // Note: User role remains unchanged (Customer stays Customer)
             await _context.SaveChangesAsync();
             return (true, null);
         }
