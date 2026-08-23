@@ -1,0 +1,263 @@
+@model ProductDetailsViewModel
+@{
+    ViewData["Title"] = Model.Product.Name;
+}
+
+<div class="row g-4 mb-5">
+    <!-- Product Image -->
+    <div class="col-lg-6">
+        <div class="custom-card p-3 text-center">
+            <img src="@Model.Product.ImageUrl" alt="@Model.Product.Name" class="img-fluid rounded-3" style="max-height: 440px; object-fit: contain;" />
+        </div>
+    </div>
+
+    <!-- Product Info & Actions -->
+    <div class="col-lg-6">
+        <div class="custom-card p-4 h-100 d-flex flex-column">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="badge badge-category">@Model.Product.Category.Name</span>
+                
+                @if (User.Identity?.IsAuthenticated == true && !User.IsInRole("Seller") && !User.IsInRole("Admin"))
+                {
+                    <form asp-controller="Wishlist" asp-action="Toggle" method="post" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="productId" value="@Model.Product.Id" />
+                        <input type="hidden" name="returnUrl" value="@Context.Request.Path" />
+                        <button type="submit" class="btn btn-sm @(Model.IsInWishlist ? "btn-danger" : "btn-outline-danger") rounded-pill px-3">
+                            <i class="bi @(Model.IsInWishlist ? "bi-heart-fill" : "bi-heart") me-1"></i>
+                            @(Model.IsInWishlist ? "In Wishlist" : "Add to Wishlist")
+                        </button>
+                    </form>
+                }
+            </div>
+
+            <h1 class="h3 fw-bold mb-2">@Model.Product.Name</h1>
+
+            <!-- Ratings summary -->
+            <div class="d-flex align-items-center gap-2 mb-3">
+                <span class="star-rating fs-5">
+                    @for (int i = 1; i <= 5; i++)
+                    {
+                        if (i <= Math.Round(Model.AverageRating))
+                        {
+                            <i class="bi bi-star-fill"></i>
+                        }
+                        else
+                        {
+                            <i class="bi bi-star star-rating-empty"></i>
+                        }
+                    }
+                </span>
+                <span class="fw-bold text-dark">@Model.AverageRating.ToString("0.0")</span>
+                <span class="text-muted small">(@Model.ReviewCount verified reviews)</span>
+            </div>
+
+            <div class="mb-4">
+                <div class="display-6 fw-bold text-primary mb-1">$@Model.Product.Price.ToString("N2")</div>
+                <div class="small">
+                    @if (Model.Product.AvailableQuantity > 5)
+                    {
+                        <span class="text-success fw-semibold"><i class="bi bi-check-circle-fill me-1"></i>In Stock (@Model.Product.AvailableQuantity available)</span>
+                    }
+                    else if (Model.Product.AvailableQuantity > 0)
+                    {
+                        <span class="text-warning fw-semibold"><i class="bi bi-exclamation-triangle-fill me-1"></i>Low Stock: Only @Model.Product.AvailableQuantity remaining!</span>
+                    }
+                    else
+                    {
+                        <span class="text-danger fw-semibold"><i class="bi bi-x-circle-fill me-1"></i>Currently Out of Stock</span>
+                    }
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <h6 class="fw-bold text-muted text-uppercase small">Description</h6>
+                <p class="text-secondary" style="white-space: pre-line;">@Model.Product.Description</p>
+            </div>
+
+            <!-- Seller Info -->
+            <div class="p-3 bg-light rounded-3 mb-4 d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bg-primary bg-opacity-10 text-primary rounded-circle p-2 fs-4">
+                        <i class="bi bi-shop"></i>
+                    </div>
+                    <div>
+                        <div class="small text-muted">Sold &amp; Fulfilled By</div>
+                        <div class="fw-bold text-dark">@Model.Product.Seller.FullName</div>
+                    </div>
+                </div>
+                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1">
+                    <i class="bi bi-patch-check-fill me-1"></i>Verified Seller
+                </span>
+            </div>
+
+            <!-- Add to Cart Form -->
+            <div class="mt-auto">
+                @if (Model.IsOwner)
+                {
+                    <div class="alert alert-info d-flex align-items-center justify-content-between mb-0">
+                        <span><i class="bi bi-info-circle me-2"></i>You are the vendor selling this product.</span>
+                        <a asp-controller="Seller" asp-action="EditProduct" asp-route-id="@Model.Product.Id" class="btn btn-warning btn-sm">
+                            <i class="bi bi-pencil-square me-1"></i>Edit Product
+                        </a>
+                    </div>
+                }
+                else if (Model.Product.AvailableQuantity > 0)
+                {
+                    <form asp-controller="Cart" asp-action="AddToCart" method="post" class="row g-2 align-items-center">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="productId" value="@Model.Product.Id" />
+                        
+                        <div class="col-4 col-md-3">
+                            <label class="form-label small fw-semibold">Quantity</label>
+                            <input type="number" name="quantity" class="form-control" value="1" min="1" max="@Model.Product.AvailableQuantity" required />
+                        </div>
+                        <div class="col-8 col-md-9 pt-md-4">
+                            <button type="submit" class="btn btn-primary-custom w-100 py-2">
+                                <i class="bi bi-cart-plus-fill me-2"></i>Add to Cart
+                            </button>
+                        </div>
+                    </form>
+                }
+                else
+                {
+                    <button class="btn btn-secondary w-100 py-2" disabled>
+                        <i class="bi bi-x-circle me-1"></i>Product Out of Stock
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reviews & Ratings Section -->
+<div class="custom-card p-4 mb-4">
+    <h3 class="h4 fw-bold mb-4"><i class="bi bi-chat-square-quote text-primary me-2"></i>Customer Reviews</h3>
+
+    <div class="row g-4 mb-4">
+        <!-- Rating Breakdown -->
+        <div class="col-md-4 text-center border-end">
+            <div class="display-4 fw-bold text-primary mb-1">@Model.AverageRating.ToString("0.0")</div>
+            <div class="star-rating fs-5 mb-2">
+                @for (int i = 1; i <= 5; i++)
+                {
+                    if (i <= Math.Round(Model.AverageRating))
+                    {
+                        <i class="bi bi-star-fill"></i>
+                    }
+                    else
+                    {
+                        <i class="bi bi-star star-rating-empty"></i>
+                    }
+                }
+            </div>
+            <p class="text-muted small">Based on @Model.ReviewCount verified purchases</p>
+        </div>
+
+        <!-- Rating Distribution Bars -->
+        <div class="col-md-8">
+            @for (int star = 5; star >= 1; star--)
+            {
+                var count = Model.RatingCounts.ContainsKey(star) ? Model.RatingCounts[star] : 0;
+                var pct = Model.ReviewCount > 0 ? (count * 100) / Model.ReviewCount : 0;
+                <div class="d-flex align-items-center gap-2 mb-2 small">
+                    <span style="width: 50px;">@star <i class="bi bi-star-fill text-warning"></i></span>
+                    <div class="progress flex-grow-1" style="height: 8px;">
+                        <div class="progress-bar bg-warning" role="progressbar" style="width: @pct%;" aria-valuenow="@pct" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <span class="text-muted" style="width: 40px; text-align: right;">@count</span>
+                </div>
+            }
+        </div>
+    </div>
+
+    <hr class="my-4">
+
+    <!-- Add Review Section (Only if verified buyer) -->
+    @if (Model.CanReview)
+    {
+        <div class="p-4 bg-light rounded-3 mb-4">
+            <h5 class="fw-bold mb-3"><i class="bi bi-pencil-square text-success me-2"></i>Write a Verified Purchase Review</h5>
+            <form asp-controller="Review" asp-action="Add" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="ProductId" value="@Model.Product.Id" />
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold small">Your Rating</label>
+                    <select name="Rating" class="form-select w-auto" required>
+                        <option value="5">⭐⭐⭐⭐⭐ (5 - Excellent)</option>
+                        <option value="4">⭐⭐⭐⭐ (4 - Very Good)</option>
+                        <option value="3">⭐⭐⭐ (3 - Average)</option>
+                        <option value="2">⭐⭐ (2 - Poor)</option>
+                        <option value="1">⭐ (1 - Terrible)</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold small">Review Feedback</label>
+                    <textarea name="Comment" class="form-control" rows="3" placeholder="Share your honest experience with this item..." required minlength="5" maxlength="1000"></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-success btn-sm px-4">
+                    <i class="bi bi-send-fill me-1"></i>Submit Verified Review
+                </button>
+            </form>
+        </div>
+    }
+    else if (Model.HasReviewed)
+    {
+        <div class="alert alert-success small mb-4">
+            <i class="bi bi-check-circle-fill me-1"></i>You have already submitted a verified review for this product.
+        </div>
+    }
+    else if (User.Identity?.IsAuthenticated == true && !Model.IsOwner)
+    {
+        <div class="alert alert-light border small text-muted mb-4">
+            <i class="bi bi-shield-lock me-1"></i>Only verified buyers who purchased this product can leave a review.
+        </div>
+    }
+
+    <!-- Reviews List -->
+    @if (!Model.Reviews.Any())
+    {
+        <div class="text-center py-4 text-muted">
+            <i class="bi bi-chat-dots fs-3 d-block mb-2"></i>
+            No reviews yet for this product. Be the first verified customer to share your thoughts!
+        </div>
+    }
+    else
+    {
+        <div class="d-flex flex-column gap-3">
+            @foreach (var review in Model.Reviews)
+            {
+                <div class="p-3 border rounded-3 bg-white shadow-sm">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="fw-bold text-dark">@review.Customer.FullName</span>
+                            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25" style="font-size: 0.7rem;">
+                                <i class="bi bi-patch-check-fill me-1"></i>Verified Purchase
+                            </span>
+                        </div>
+                        <span class="text-muted small">@review.CreatedAt.ToString("MMM dd, yyyy")</span>
+                    </div>
+
+                    <div class="star-rating small mb-2">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            if (i <= review.Rating)
+                            {
+                                <i class="bi bi-star-fill"></i>
+                            }
+                            else
+                            {
+                                <i class="bi bi-star star-rating-empty"></i>
+                            }
+                        }
+                    </div>
+
+                    <p class="text-secondary mb-0 small">@review.Comment</p>
+                </div>
+            }
+        </div>
+    }
+</div>

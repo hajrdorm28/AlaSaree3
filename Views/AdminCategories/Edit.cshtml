@@ -1,0 +1,44 @@
+@model CategoryViewModel
+@{
+    ViewData["Title"] = $"Edit — {Model.Name}";
+}
+
+<div class="custom-card p-4 mx-auto" style="max-width: 600px;">
+    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+        <h2 class="h4 fw-bold mb-0"><i class="bi bi-pencil-square text-primary me-2"></i>Edit Category</h2>
+        <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i>Back to Categories
+        </a>
+    </div>
+
+    <form asp-action="Edit" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="CreatedAt" />
+
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4"></div>
+
+        <div class="mb-3">
+            <label asp-for="Name" class="form-label fw-semibold small"></label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-4">
+            <label asp-for="Description" class="form-label fw-semibold small"></label>
+            <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+            <span asp-validation-for="Description" class="text-danger small"></span>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2">
+            <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary-custom px-4">
+                <i class="bi bi-save me-1"></i>Update Category
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

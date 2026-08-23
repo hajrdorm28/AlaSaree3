@@ -1,0 +1,99 @@
+@model IEnumerable<Product>
+@{
+    ViewData["Title"] = "Admin Products Moderation";
+    var categories = ViewBag.Categories as IEnumerable<Category> ?? new List<Category>();
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h2 class="h3 fw-bold mb-1"><i class="bi bi-box-seam text-primary me-2"></i>AlaSaree3 Products Moderation</h2>
+        <p class="text-muted small mb-0">Review active listings and remove non-compliant or inappropriate items</p>
+    </div>
+</div>
+
+<!-- Filter Box -->
+<div class="custom-card p-3 mb-4">
+    <form method="get" class="row g-2 align-items-center">
+        <div class="col-md-6">
+            <div class="input-group">
+                <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
+                <input type="text" name="search" class="form-control" placeholder="Search by title or vendor name..." value="@ViewBag.Search" />
+            </div>
+        </div>
+        <div class="col-md-4">
+            <select name="categoryId" class="form-select">
+                <option value="">All Categories</option>
+                @foreach (var cat in categories)
+                {
+                    <option value="@cat.Id" selected="@(ViewBag.CategoryId == cat.Id)">@cat.Name</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary-custom w-100">Filter</button>
+        </div>
+    </form>
+</div>
+
+<!-- Products Table -->
+<div class="custom-card p-4">
+    <div class="table-responsive">
+        <table class="table align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Product</th>
+                    <th>Category</th>
+                    <th>Seller / Vendor</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                    <th>Reviews</th>
+                    <th class="text-end">Moderation Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var p in Model)
+                {
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-3">
+
+                                <img src="@p.ImageUrl" alt="@p.Name" class="rounded border" style="width: 44px; height: 44px; object-fit: cover;" />
+                                <div>
+                                    <h6 class="mb-0 fw-semibold">
+                                        <a asp-controller="Product" asp-action="Details" asp-route-id="@p.Id" target="_blank" class="text-dark text-decoration-none">
+                                            @p.Name <i class="bi bi-box-arrow-up-right small text-muted"></i>
+                                        </a>
+                                    </h6>
+                                    <small class="text-muted">Listed @p.CreatedAt.ToString("MMM dd, yyyy")</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="badge badge-category">@p.Category.Name</span></td>
+                        <td>
+                            <div class="small fw-semibold">@p.Seller.FullName</div>
+                            <div class="text-muted" style="font-size: 0.75rem;">@p.Seller.Email</div>
+                        </td>
+                        <td class="fw-bold text-primary">$@p.Price.ToString("N2")</td>
+                        <td>
+                            <span class="badge @(p.AvailableQuantity > 0 ? "bg-success" : "bg-danger")">
+                                @p.AvailableQuantity in stock
+                            </span>
+                        </td>
+                        <td class="small">
+                            @p.Reviews.Count reviews
+                        </td>
+                        <td class="text-end">
+                            <form asp-action="Delete" method="post" class="d-inline" onsubmit="return confirm('As an Administrator, are you sure you want to permanently remove this product listing?');">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@p.Id" />
+                                <button type="submit" class="btn btn-outline-danger btn-sm">
+                                    <i class="bi bi-trash me-1"></i>Remove Listing
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

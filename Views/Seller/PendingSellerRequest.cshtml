@@ -1,0 +1,35 @@
+@{
+    ViewData["Title"] = "Application Pending Review";
+    var req = ViewBag.PendingRequest as SellerRequest;
+}
+
+<div class="custom-card p-5 text-center my-4 mx-auto" style="max-width: 650px;">
+    <div class="bg-warning text-dark rounded-circle d-inline-flex align-items-center justify-content-center mb-3 shadow" style="width: 70px; height: 70px;">
+        <i class="bi bi-hourglass-split fs-2"></i>
+    </div>
+
+    <h2 class="h4 fw-bold mb-2">Seller Application Under Review</h2>
+    <p class="text-muted mb-4">You have already submitted an application to become a verified seller on AlaSaree3.</p>
+
+    @if (req != null)
+    {
+        <div class="p-3 bg-light rounded-3 text-start small mb-4">
+            <div class="d-flex justify-content-between mb-1">
+                <span class="text-muted">Business Store Name:</span>
+                <span class="fw-bold">@req.BusinessName</span>
+            </div>
+            <div class="d-flex justify-content-between mb-1">
+                <span class="text-muted">Submission Date:</span>
+                <span>@req.RequestedAt.ToString("MMM dd, yyyy HH:mm") UTC</span>
+            </div>
+            <div class="d-flex justify-content-between">
+                <span class="text-muted">Application Status:</span>
+                <span class="badge bg-warning text-dark">Pending Admin Approval</span>
+            </div>
+        </div>
+    }
+
+    <a asp-controller="Home" asp-action="Index" class="btn btn-primary-custom px-4">
+        <i class="bi bi-house me-1"></i>Back to Homepage
+    </a>
+</div>

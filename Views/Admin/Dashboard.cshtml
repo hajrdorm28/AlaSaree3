@@ -1,0 +1,180 @@
+@model AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Administrator Command Center";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h2 class="h3 fw-bold mb-1"><i class="bi bi-shield-lock-fill text-danger me-2"></i>Admin Command Center</h2>
+        <p class="text-muted small mb-0">System-wide governance, analytics, moderation, and user management</p>
+    </div>
+</div>
+
+<!-- Stat Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-2">
+        <div class="stat-card p-3">
+            <div class="stat-icon bg-primary bg-opacity-10 text-primary" style="width: 44px; height: 44px; font-size: 1.2rem;">
+                <i class="bi bi-people"></i>
+            </div>
+            <div>
+                <div class="text-muted" style="font-size: 0.75rem;">Customers</div>
+                <h4 class="fw-bold mb-0">@Model.TotalCustomers</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-2">
+        <div class="stat-card p-3">
+            <div class="stat-icon bg-warning bg-opacity-10 text-warning" style="width: 44px; height: 44px; font-size: 1.2rem;">
+                <i class="bi bi-shop"></i>
+            </div>
+            <div>
+                <div class="text-muted" style="font-size: 0.75rem;">Sellers</div>
+                <h4 class="fw-bold mb-0">@Model.TotalSellers</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-2">
+        <div class="stat-card p-3">
+            <div class="stat-icon bg-info bg-opacity-10 text-info" style="width: 44px; height: 44px; font-size: 1.2rem;">
+                <i class="bi bi-boxes"></i>
+            </div>
+            <div>
+                <div class="text-muted" style="font-size: 0.75rem;">Products</div>
+                <h4 class="fw-bold mb-0">@Model.TotalProducts</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-2">
+        <div class="stat-card p-3">
+            <div class="stat-icon bg-secondary bg-opacity-10 text-secondary" style="width: 44px; height: 44px; font-size: 1.2rem;">
+                <i class="bi bi-receipt"></i>
+            </div>
+            <div>
+                <div class="text-muted" style="font-size: 0.75rem;">Total Orders</div>
+                <h4 class="fw-bold mb-0">@Model.TotalOrders</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-2">
+        <div class="stat-card p-3">
+            <div class="stat-icon bg-danger bg-opacity-10 text-danger" style="width: 44px; height: 44px; font-size: 1.2rem;">
+                <i class="bi bi-clock"></i>
+            </div>
+            <div>
+                <div class="text-muted" style="font-size: 0.75rem;">Pending Orders</div>
+                <h4 class="fw-bold mb-0">@Model.PendingOrders</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-2">
+        <div class="stat-card p-3">
+            <div class="stat-icon bg-success bg-opacity-10 text-success" style="width: 44px; height: 44px; font-size: 1.2rem;">
+                <i class="bi bi-currency-dollar"></i>
+            </div>
+            <div>
+                <div class="text-muted" style="font-size: 0.75rem;">Gross Revenue</div>
+                <h5 class="fw-bold mb-0 text-success">$@Model.TotalRevenue.ToString("N0")</h5>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Pending Seller Requests -->
+    <div class="col-lg-6">
+        <div class="custom-card p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0"><i class="bi bi-person-check text-primary me-2"></i>Pending Seller Applications</h5>
+                <a asp-action="SellerRequests" class="btn btn-outline-primary btn-sm">View All</a>
+            </div>
+
+            @if (!Model.RecentSellerRequests.Any())
+            {
+                <p class="text-muted small text-center py-4">No pending seller applications at this time.</p>
+            }
+            else
+            {
+                <div class="d-flex flex-column gap-3">
+                    @foreach (var req in Model.RecentSellerRequests)
+                    {
+                        <div class="p-3 bg-light rounded-3">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="fw-bold text-dark">@req.BusinessName</span>
+                                <span class="badge @(req.Status == RequestStatus.Pending ? "bg-warning text-dark" : req.Status == RequestStatus.Approved ? "bg-success" : "bg-danger")">@req.Status</span>
+                            </div>
+                            <p class="small text-muted mb-2">Applicant: <strong>@req.User.FullName</strong> (@req.User.Email)</p>
+                            <p class="small text-secondary mb-3 text-truncate">@req.Reason</p>
+
+                            @if (req.Status == RequestStatus.Pending)
+                            {
+                                <div class="d-flex gap-2">
+                                    <form asp-action="ApproveSellerRequest" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@req.Id" />
+                                        <button type="submit" class="btn btn-success btn-sm px-3">
+                                            <i class="bi bi-check-lg me-1"></i>Approve
+                                        </button>
+                                    </form>
+                                    <form asp-action="RejectSellerRequest" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@req.Id" />
+                                        <button type="submit" class="btn btn-outline-danger btn-sm px-3">
+                                            <i class="bi bi-x-lg me-1"></i>Reject
+                                        </button>
+                                    </form>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Recent Platform Orders -->
+    <div class="col-lg-6">
+        <div class="custom-card p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0"><i class="bi bi-receipt text-primary me-2"></i>Recent AlaSaree3 Orders</h5>
+                <a asp-controller="AdminOrders" asp-action="Index" class="btn btn-outline-primary btn-sm">View All Orders</a>
+            </div>
+
+            @if (!Model.RecentOrders.Any())
+            {
+                <p class="text-muted small text-center py-4">No AlaSaree3 orders recorded yet.</p>
+            }
+            else
+            {
+                <div class="d-flex flex-column gap-2">
+                    @foreach (var order in Model.RecentOrders)
+                    {
+                        var badgeClass = order.Status switch
+                        {
+                            OrderStatus.Pending => "badge-status-pending",
+                            OrderStatus.Confirmed => "badge-status-confirmed",
+                            OrderStatus.Shipped => "badge-status-shipped",
+                            OrderStatus.Delivered => "badge-status-delivered",
+                            OrderStatus.Cancelled => "badge-status-cancelled",
+                            _ => "bg-secondary"
+                        };
+
+                        <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
+                            <div>
+                                <div class="fw-semibold small">Order #@order.Id — @order.Customer.FullName</div>
+                                <div class="text-muted" style="font-size: 0.75rem;">@order.OrderDate.ToString("MMM dd, yyyy")</div>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge @badgeClass px-2 py-1" style="font-size: 0.7rem;">@order.Status</span>
+                                <span class="fw-bold text-primary small">$@order.TotalAmount.ToString("N2")</span>
+                                <a asp-controller="AdminOrders" asp-action="Details" asp-route-id="@order.Id" class="btn btn-sm btn-outline-secondary py-0 px-2" style="font-size: 0.75rem;">
+                                    View
+                                </a>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>

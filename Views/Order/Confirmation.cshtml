@@ -1,0 +1,54 @@
+@model OrderConfirmationViewModel
+@{
+    ViewData["Title"] = $"Order #{Model.OrderId} Confirmation";
+}
+
+<div class="custom-card p-5 text-center my-4 max-w-700 mx-auto" style="max-width: 750px;">
+    <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3 shadow" style="width: 70px; height: 70px;">
+        <i class="bi bi-check-lg fs-2"></i>
+    </div>
+
+    <h2 class="h3 fw-bold mb-2">Thank You for Your Order!</h2>
+    <p class="text-muted mb-4">Your order <strong>#@Model.OrderId</strong> has been placed and is currently being processed by our vendor network.</p>
+
+    <div class="p-4 bg-light rounded-3 text-start mb-4">
+        <div class="row g-3">
+            <div class="col-sm-6">
+                <div class="small text-muted">Order Number</div>
+                <div class="fw-bold fs-6">#@Model.OrderId</div>
+            </div>
+            <div class="col-sm-6">
+                <div class="small text-muted">Order Date</div>
+                <div class="fw-bold fs-6">@Model.OrderDate.ToString("MMM dd, yyyy HH:mm") UTC</div>
+            </div>
+            <div class="col-sm-6">
+                <div class="small text-muted">Total Paid</div>
+                <div class="fw-bold text-primary fs-5">$@Model.TotalAmount.ToString("N2")</div>
+            </div>
+            <div class="col-sm-6">
+                <div class="small text-muted">Status</div>
+                <span class="badge badge-status-pending px-3 py-2 rounded-pill">
+                    <i class="bi bi-clock me-1"></i>@Model.Status
+                </span>
+            </div>
+        </div>
+
+        <hr class="my-3">
+
+        <h6 class="fw-bold small text-uppercase text-muted mb-2">Shipping Information</h6>
+        <p class="mb-0 small text-dark">
+            @Model.ShippingAddress<br>
+            @Model.City, @Model.PostalCode<br>
+            Phone: @Model.PhoneNumber
+        </p>
+    </div>
+
+    <div class="d-flex justify-content-center gap-3">
+        <a asp-action="Details" asp-route-id="@Model.OrderId" class="btn btn-primary-custom px-4">
+            <i class="bi bi-receipt me-1"></i>View Order Details
+        </a>
+        <a asp-controller="Product" asp-action="Index" class="btn btn-outline-secondary px-4">
+            <i class="bi bi-shop me-1"></i>Continue Shopping
+        </a>
+    </div>
+</div>

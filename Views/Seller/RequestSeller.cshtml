@@ -1,0 +1,53 @@
+@model SellerRequestCreateViewModel
+@{
+    ViewData["Title"] = "Apply to Become a Seller";
+}
+
+<div class="custom-card p-4 mx-auto" style="max-width: 680px;">
+    <div class="text-center mb-4">
+        <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 54px; height: 54px;">
+            <i class="bi bi-shop-window fs-4"></i>
+        </div>
+        <h2 class="h4 fw-bold">AlaSaree3 Vendor Application</h2>
+        <p class="text-muted small">Join our network of verified vendors. Provide your business details for administrative review.</p>
+    </div>
+
+    <form asp-action="RequestSeller" method="post">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4"></div>
+
+        <div class="mb-3">
+            <label asp-for="BusinessName" class="form-label fw-semibold small"></label>
+            <input asp-for="BusinessName" class="form-control" placeholder="e.g. Apex Electronics &amp; Accessories" />
+            <span asp-validation-for="BusinessName" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="PhoneNumber" class="form-label fw-semibold small"></label>
+            <input asp-for="PhoneNumber" class="form-control" placeholder="+1-555-0100" />
+            <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-4">
+            <label asp-for="Reason" class="form-label fw-semibold small"></label>
+            <textarea asp-for="Reason" class="form-control" rows="4" placeholder="Tell us about the products you intend to sell, your fulfillment experience, and your business goals..."></textarea>
+            <span asp-validation-for="Reason" class="text-danger small"></span>
+        </div>
+
+        <div class="p-3 bg-light rounded-3 small text-muted mb-4 border">
+            <i class="bi bi-info-circle text-primary me-1"></i>
+            <strong>Approval Policy:</strong> All seller accounts are subject to administrative review. Once approved, the Seller role will be assigned and your storefront unlocked.
+        </div>
+
+        <div class="d-flex justify-content-end gap-2">
+            <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary-custom px-4">
+                <i class="bi bi-send-fill me-1"></i>Submit Application
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

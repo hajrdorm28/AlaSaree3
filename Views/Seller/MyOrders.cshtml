@@ -1,0 +1,116 @@
+@model SellerOrderListViewModel
+@{
+    ViewData["Title"] = "Fulfillment Orders";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h2 class="h3 fw-bold mb-1"><i class="bi bi-truck text-primary me-2"></i>Orders For My Products</h2>
+        <p class="text-muted small mb-0">Manage fulfillment and track orders containing items from your storefront</p>
+    </div>
+    <div class="badge bg-success fs-6 px-3 py-2 rounded-pill">
+        Total Sales: $@Model.TotalSellerSales.ToString("N2")
+    </div>
+</div>
+
+@if (!Model.Items.Any())
+{
+    <div class="custom-card p-5 text-center my-4">
+        <i class="bi bi-inbox display-3 text-muted mb-3"></i>
+        <h4 class="fw-bold">No Orders For Your Products Yet</h4>
+        <p class="text-muted mb-0">When customers order your products, they will appear here for fulfillment and status updates.</p>
+    </div>
+}
+else
+{
+    <div class="custom-card p-4">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Order #</th>
+                        <th>Date</th>
+                        <th>Customer</th>
+                        <th>Product</th>
+                        <th>Qty</th>
+                        <th>Line Total</th>
+                        <th>Status</th>
+                        <th>Update Status</th>
+                        <th class="text-end">Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Items)
+                    {
+                        var badgeClass = item.OrderStatus switch
+                        {
+                            OrderStatus.Pending => "badge-status-pending",
+                            OrderStatus.Confirmed => "badge-status-confirmed",
+                            OrderStatus.Shipped => "badge-status-shipped",
+                            OrderStatus.Delivered => "badge-status-delivered",
+                            OrderStatus.Cancelled => "badge-status-cancelled",
+                            _ => "bg-secondary"
+                        };
+
+                        <tr>
+                            <td class="fw-bold text-primary">#@item.OrderId</td>
+                            <td class="small text-muted">@item.OrderDate.ToString("MMM dd, yyyy")</td>
+                            <td>
+                                <div class="fw-semibold small">@item.CustomerName</div>
+                                <div class="text-muted" style="font-size: 0.75rem;">@item.CustomerEmail</div>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <img src="@item.ProductImageUrl" alt="@item.ProductName" class="rounded border" style="width: 36px; height: 36px; object-fit: cover;" />
+                                    <span class="small fw-semibold text-truncate" style="max-width: 160px;">@item.ProductName</span>
+                                </div>
+                            </td>
+                            <td class="small">@item.Quantity</td>
+                            <td class="fw-bold text-success small">$@item.LineTotal.ToString("N2")</td>
+                            <td>
+                                <span class="badge @badgeClass px-2 py-1 rounded-pill small">@item.OrderStatus</span>
+                            </td>
+                            <td>
+                                @if (item.OrderStatus != OrderStatus.Delivered && item.OrderStatus != OrderStatus.Cancelled)
+                                {
+                                    <form asp-action="UpdateOrderStatus" method="post" class="d-flex align-items-center gap-1">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="orderId" value="@item.OrderId" />
+                                        <select name="status" class="form-select form-select-sm" style="width: auto;">
+                                            @if (item.OrderStatus == OrderStatus.Pending)
+                                            {
+                                                <option value="@OrderStatus.Confirmed">Confirm</option>
+                                                <option value="@OrderStatus.Cancelled">Cancel</option>
+                                            }
+                                            else if (item.OrderStatus == OrderStatus.Confirmed)
+                                            {
+                                                <option value="@OrderStatus.Shipped">Ship</option>
+                                                <option value="@OrderStatus.Cancelled">Cancel</option>
+                                            }
+                                            else if (item.OrderStatus == OrderStatus.Shipped)
+                                            {
+                                                <option value="@OrderStatus.Delivered">Deliver</option>
+                                            }
+                                        </select>
+                                        <button type="submit" class="btn btn-outline-primary btn-sm" title="Apply Status">
+                                            <i class="bi bi-check"></i>
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small">Completed</span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                <a asp-action="OrderDetails" asp-route-id="@item.OrderId" class="btn btn-outline-secondary btn-sm" title="View Full Order Details">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

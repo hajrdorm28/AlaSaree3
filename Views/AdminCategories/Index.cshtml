@@ -1,0 +1,68 @@
+@model IEnumerable<CategoryViewModel>
+@{
+    ViewData["Title"] = "Manage Categories";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h2 class="h3 fw-bold mb-1"><i class="bi bi-tags text-primary me-2"></i>Product Categories</h2>
+        <p class="text-muted small mb-0">Organize AlaSaree3 taxonomy and product catalogs</p>
+    </div>
+    <a asp-action="Create" class="btn btn-primary-custom">
+        <i class="bi bi-plus-circle-fill me-1"></i>Add Category
+    </a>
+</div>
+
+<div class="custom-card p-4">
+    <div class="table-responsive">
+        <table class="table align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Category Name</th>
+                    <th>Description</th>
+                    <th>Associated Products</th>
+                    <th>Created</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var cat in Model)
+                {
+                    <tr>
+                        <td class="fw-bold text-dark">@cat.Name</td>
+                        <td class="small text-muted" style="max-width: 350px;">@cat.Description</td>
+                        <td>
+                            <span class="badge @(cat.ProductCount > 0 ? "bg-primary" : "bg-secondary")">
+                                @cat.ProductCount Products
+                            </span>
+                        </td>
+                        <td class="small text-muted">@cat.CreatedAt.ToString("MMM dd, yyyy")</td>
+                        <td class="text-end">
+                            <div class="btn-group btn-group-sm">
+                                <a asp-action="Edit" asp-route-id="@cat.Id" class="btn btn-outline-primary" title="Edit Category">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+                                @if (cat.ProductCount == 0)
+                                {
+                                    <form asp-action="Delete" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this category?');">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@cat.Id" />
+                                        <button type="submit" class="btn btn-outline-danger" title="Delete Category">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-outline-secondary" disabled title="Cannot delete category containing active products">
+                                        <i class="bi bi-lock"></i>
+                                    </button>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

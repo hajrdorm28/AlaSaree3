@@ -1,0 +1,169 @@
+@model OrderDetailsViewModel
+@{
+    ViewData["Title"] = $"Order #{Model.Order.Id} Details";
+
+    var badgeClass = Model.Order.Status switch
+    {
+        OrderStatus.Pending => "badge-status-pending",
+        OrderStatus.Confirmed => "badge-status-confirmed",
+        OrderStatus.Shipped => "badge-status-shipped",
+        OrderStatus.Delivered => "badge-status-delivered",
+        OrderStatus.Cancelled => "badge-status-cancelled",
+        _ => "bg-secondary"
+    };
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <h2 class="h3 fw-bold mb-0">Order #@Model.Order.Id</h2>
+            <span class="badge @badgeClass px-3 py-2 rounded-pill">@Model.Order.Status</span>
+        </div>
+        <p class="text-muted small mb-0">Placed on @Model.Order.OrderDate.ToString("MMMM dd, yyyy HH:mm") UTC</p>
+    </div>
+
+    <div class="d-flex gap-2">
+        @if (Model.CanCancel && !Model.IsSellerView && !Model.IsAdminView)
+        {
+            <form asp-action="Cancel" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@Model.Order.Id" />
+                <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Are you sure you want to cancel this order? Reserved stock will be restored.');">
+                    <i class="bi bi-x-circle me-1"></i>Cancel Order
+                </button>
+            </form>
+        }
+
+        @if (!Model.IsSellerView && !Model.IsAdminView)
+        {
+            <a asp-action="MyOrders" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i>Back to My Orders
+            </a>
+        }
+        else if (Model.IsSellerView)
+        {
+            <a asp-controller="Seller" asp-action="MyOrders" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i>Back to Seller Orders
+            </a>
+        }
+        else if (Model.IsAdminView)
+        {
+            <a asp-controller="AdminOrders" asp-action="Index" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i>Back to All Orders
+            </a>
+        }
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Items Table -->
+    <div class="col-lg-8">
+        <div class="custom-card p-4 mb-4">
+            <h5 class="fw-bold mb-3"><i class="bi bi-box me-2 text-primary"></i>Order Items</h5>
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Product</th>
+                            <th>Unit Price (At Purchase)</th>
+                            <th>Qty</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Items)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <img src="@item.Product.ImageUrl" alt="@item.Product.Name" class="rounded border" style="width: 48px; height: 48px; object-fit: cover;" />
+                                        <div>
+                                            <div class="fw-semibold small">
+                                                <a asp-controller="Product" asp-action="Details" asp-route-id="@item.ProductId" class="text-dark text-decoration-none">
+                                                    @item.Product.Name
+                                                </a>
+                                            </div>
+                                            <span class="text-muted small" style="font-size: 0.75rem;">Vendor: @item.Product.Seller.FullName</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="small fw-semibold">$@item.UnitPrice.ToString("N2")</td>
+                                <td class="small">@item.Quantity</td>
+                                <td class="small fw-bold text-primary">$@((item.UnitPrice * item.Quantity).ToString("N2"))</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Metadata & Shipping Details -->
+    <div class="col-lg-4">
+        <div class="custom-card p-4 mb-4">
+            <h5 class="fw-bold mb-3"><i class="bi bi-truck me-2 text-primary"></i>Shipping Details</h5>
+            <p class="small text-muted mb-1">Recipient Customer</p>
+            <div class="fw-semibold mb-3">@Model.Order.Customer.FullName (@Model.Order.Customer.Email)</div>
+
+            <p class="small text-muted mb-1">Delivery Address</p>
+            <div class="fw-semibold mb-3">
+                @Model.Order.ShippingAddress<br>
+                @Model.Order.City, @Model.Order.PostalCode
+            </div>
+
+            <p class="small text-muted mb-1">Contact Phone</p>
+            <div class="fw-semibold mb-3">@Model.Order.PhoneNumber</div>
+
+            @if (!string.IsNullOrEmpty(Model.Order.Notes))
+            {
+                <p class="small text-muted mb-1">Customer Delivery Notes</p>
+                <div class="small bg-light p-2 rounded mb-3">@Model.Order.Notes</div>
+            }
+
+            <hr class="my-3">
+
+            <div class="d-flex justify-content-between mb-2 small text-muted">
+                <span>Items Subtotal</span>
+                <span class="fw-semibold text-dark">
+                    @(Model.IsSellerView ? $"${Model.SellerSubtotal:N2} (Seller Portion)" : $"${Model.Order.TotalAmount:N2}")
+                </span>
+            </div>
+            <div class="d-flex justify-content-between mb-3 small text-muted">
+                <span>Shipping</span>
+                <span class="text-success fw-semibold">FREE</span>
+            </div>
+            <div class="d-flex justify-content-between mb-0">
+                <span class="fw-bold fs-6">Total Amount</span>
+                <span class="fw-bold text-primary fs-5">
+                    @(Model.IsSellerView ? $"${Model.SellerSubtotal:N2}" : $"${Model.Order.TotalAmount:N2}")
+                </span>
+            </div>
+        </div>
+
+        @if (Model.IsAdminView)
+        {
+            <div class="custom-card p-4">
+                <h6 class="fw-bold mb-3"><i class="bi bi-gear-fill me-2 text-danger"></i>Admin Order Controls</h6>
+                <form asp-controller="AdminOrders" asp-action="UpdateStatus" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="orderId" value="@Model.Order.Id" />
+                    
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Change Status</label>
+                        <select name="status" class="form-select form-select-sm">
+                            <option value="@OrderStatus.Pending" selected="@(Model.Order.Status == OrderStatus.Pending)">Pending</option>
+                            <option value="@OrderStatus.Confirmed" selected="@(Model.Order.Status == OrderStatus.Confirmed)">Confirmed</option>
+                            <option value="@OrderStatus.Shipped" selected="@(Model.Order.Status == OrderStatus.Shipped)">Shipped</option>
+                            <option value="@OrderStatus.Delivered" selected="@(Model.Order.Status == OrderStatus.Delivered)">Delivered</option>
+                            <option value="@OrderStatus.Cancelled" selected="@(Model.Order.Status == OrderStatus.Cancelled)">Cancelled</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-dark btn-sm w-100">
+                        Update Status
+                    </button>
+                </form>
+            </div>
+        }
+    </div>
+</div>

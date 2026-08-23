@@ -1,0 +1,27 @@
+@{
+    ViewData["Title"] = "403 - Access Denied";
+    var reason = ViewBag.Reason as string;
+}
+
+<div class="text-center py-5">
+    <div class="display-1 text-danger mb-3"><i class="bi bi-shield-x"></i></div>
+    <h1 class="h3 fw-bold text-dark mb-3">403 — Access Denied / Unauthorized</h1>
+    
+    @if (reason == "suspended")
+    {
+        <div class="alert alert-danger d-inline-block px-4 py-3 mb-4 text-start">
+            <h6 class="fw-bold mb-1"><i class="bi bi-exclamation-octagon-fill me-2"></i>Account Suspended</h6>
+            <p class="mb-0 small">Your account has been suspended by an administrator. You have been signed out.</p>
+        </div>
+    }
+    else
+    {
+        <p class="text-muted mb-4">You do not have permission to view this page or resource.</p>
+    }
+
+    <div>
+        <a asp-controller="Home" asp-action="Index" class="btn btn-primary-custom px-4 py-2">
+            <i class="bi bi-house me-2"></i>Return to Homepage
+        </a>
+    </div>
+</div>

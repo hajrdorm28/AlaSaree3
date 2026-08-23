@@ -1,0 +1,106 @@
+@model CheckoutViewModel
+@{
+    ViewData["Title"] = "Secure Checkout";
+}
+
+<div class="mb-4">
+    <h2 class="h3 fw-bold mb-1"><i class="bi bi-shield-lock-fill text-primary me-2"></i>Secure Checkout</h2>
+    <p class="text-muted small mb-0">Complete your delivery information to place your AlaSaree3 order</p>
+</div>
+
+<form asp-action="Checkout" method="post">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4"></div>
+
+    <div class="row g-4">
+        <!-- Shipping Details Form -->
+        <div class="col-lg-7">
+            <div class="custom-card p-4">
+                <h5 class="fw-bold mb-4"><i class="bi bi-geo-alt text-primary me-2"></i>Delivery Address</h5>
+
+                <div class="mb-3">
+                    <label asp-for="ShippingAddress" class="form-label fw-semibold small"></label>
+                    <input asp-for="ShippingAddress" class="form-control" placeholder="123 Main Street, Apt / Suite" />
+                    <span asp-validation-for="ShippingAddress" class="text-danger small"></span>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-7">
+                        <label asp-for="City" class="form-label fw-semibold small"></label>
+                        <input asp-for="City" class="form-control" placeholder="City" />
+                        <span asp-validation-for="City" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-5">
+                        <label asp-for="PostalCode" class="form-label fw-semibold small"></label>
+                        <input asp-for="PostalCode" class="form-control" placeholder="ZIP / Postal Code" />
+                        <span asp-validation-for="PostalCode" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="PhoneNumber" class="form-label fw-semibold small"></label>
+                    <input asp-for="PhoneNumber" class="form-control" placeholder="+1 (555) 000-0000" />
+                    <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Notes" class="form-label fw-semibold small"></label>
+                    <textarea asp-for="Notes" class="form-control" rows="3" placeholder="Delivery instructions (e.g., Gate code, leave at doorstep)..."></textarea>
+                    <span asp-validation-for="Notes" class="text-danger small"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Items Preview & Confirmation -->
+        <div class="col-lg-5">
+            <div class="custom-card p-4">
+                <h5 class="fw-bold mb-3"><i class="bi bi-bag-check text-primary me-2"></i>Order Summary</h5>
+
+                @if (Model.Cart != null && Model.Cart.Items.Any())
+                {
+                    <div class="d-flex flex-column gap-2 mb-3" style="max-height: 260px; overflow-y: auto;">
+                        @foreach (var item in Model.Cart.Items)
+                        {
+                            <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
+                                <div class="d-flex align-items-center gap-2">
+                                    <img src="@item.ProductImageUrl" alt="@item.ProductName" class="rounded border" style="width: 40px; height: 40px; object-fit: cover;" />
+                                    <div>
+                                        <div class="fw-semibold text-truncate small" style="max-width: 170px;">@item.ProductName</div>
+                                        <div class="text-muted" style="font-size: 0.75rem;">Qty: @item.Quantity × $@item.UnitPrice.ToString("N2")</div>
+                                    </div>
+                                </div>
+                                <div class="fw-bold text-dark small">$@item.LineTotal.ToString("N2")</div>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-2 text-muted small">
+                        <span>Subtotal</span>
+                        <span class="fw-semibold text-dark">$@Model.Cart.SubTotal.ToString("N2")</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3 text-muted small">
+                        <span>Shipping</span>
+                        <span class="text-success fw-semibold">FREE</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-4">
+                        <span class="fw-bold fs-5">Total Due</span>
+                        <span class="fw-bold text-primary fs-4">$@Model.Cart.Total.ToString("N2")</span>
+                    </div>
+
+                    <div class="p-3 bg-light rounded-3 small text-muted mb-4 border">
+                        <i class="bi bi-shield-check text-success me-1"></i><strong>Atomic Order Protection:</strong> Stock is reserved and confirmed instantly upon placement.
+                    </div>
+
+                    <button type="submit" class="btn btn-primary-custom w-100 py-3 fw-bold">
+                        <i class="bi bi-bag-check-fill me-2"></i>Place Order ($@Model.Cart.Total.ToString("N2"))
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - AlaSaree3 Multi-Vendor Platform</title>
+    <!-- Bootstrap 5 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark navbar-custom sticky-top">
+            <div class="container">
+                <a class="navbar-brand" asp-controller="Home" asp-action="Index">
+                    <i class="bi bi-shop-window text-primary"></i> AlaSaree3
+                </a>
+                <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="Index"><i class="bi bi-house me-1"></i>Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Product" asp-action="Index"><i class="bi bi-grid me-1"></i>Browse Products</a>
+                        </li>
+
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-warning" href="#" id="adminMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-shield-lock me-1"></i>Admin Portal
+                                </a>
+                                <ul class="dropdown-menu shadow-sm" aria-labelledby="adminMenu">
+                                    <li><a class="dropdown-item" asp-controller="Admin" asp-action="Dashboard"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Admin" asp-action="Users"><i class="bi bi-people me-2"></i>Manage Users</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Admin" asp-action="SellerRequests"><i class="bi bi-person-check me-2"></i>Seller Requests</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" asp-controller="AdminCategories" asp-action="Index"><i class="bi bi-tags me-2"></i>Categories</a></li>
+                                    <li><a class="dropdown-item" asp-controller="AdminProducts" asp-action="Index"><i class="bi bi-box-seam me-2"></i>Products Moderation</a></li>
+                                    <li><a class="dropdown-item" asp-controller="AdminOrders" asp-action="Index"><i class="bi bi-receipt me-2"></i>All Orders</a></li>
+                                </ul>
+                            </li>
+                        }
+
+                        @if (User.IsInRole("Seller"))
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-info" href="#" id="sellerMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-shop me-1"></i>Seller Hub
+                                </a>
+                                <ul class="dropdown-menu shadow-sm" aria-labelledby="sellerMenu">
+                                    <li><a class="dropdown-item" asp-controller="Seller" asp-action="Dashboard"><i class="bi bi-graph-up me-2"></i>Seller Dashboard</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Seller" asp-action="MyProducts"><i class="bi bi-boxes me-2"></i>My Products</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Seller" asp-action="CreateProduct"><i class="bi bi-plus-circle me-2"></i>Add New Product</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Seller" asp-action="MyOrders"><i class="bi bi-truck me-2"></i>Orders For My Items</a></li>
+                                </ul>
+                            </li>
+                        }
+                    </ul>
+
+                    <div class="d-flex align-items-center gap-3">
+                        @if (User.Identity?.IsAuthenticated == true && !User.IsInRole("Admin") && !User.IsInRole("Seller"))
+                        {
+                            <a asp-controller="Wishlist" asp-action="Index" class="btn btn-outline-light btn-sm position-relative rounded-pill px-3">
+                                <i class="bi bi-heart"></i>
+                                <span class="d-none d-md-inline ms-1">Wishlist</span>
+                            </a>
+                            <a asp-controller="Cart" asp-action="Index" class="btn btn-outline-light btn-sm position-relative rounded-pill px-3">
+                                <i class="bi bi-cart3"></i>
+                                <span class="d-none d-md-inline ms-1">Cart</span>
+                                <span id="navbarCartBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">0</span>
+                            </a>
+                        }
+
+                        <partial name="_LoginPartial" />
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container my-4">
+        <partial name="_Alerts" />
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="py-4 mt-auto border-top border-secondary border-opacity-25">
+        <div class="container">
+            <div class="row g-4 align-items-center">
+                <div class="col-md-6 text-center text-md-start">
+                    <h6 class="text-white fw-bold mb-1"><i class="bi bi-shop-window text-primary me-2"></i>AlaSaree3</h6>
+                    <p class="small mb-0" style="color: #adb5bd;">Secure ASP.NET Core Multi-Vendor E-Commerce AlaSaree3 University Graduation Project.</p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <div class="d-flex justify-content-center justify-content-md-end gap-3 small" style="color: #adb5bd;">
+                        <span><i class="bi bi-shield-check text-success me-1"></i>Secure Transactions</span>
+                        <span><i class="bi bi-lock text-info me-1"></i>RBAC &amp; Ownership Enforced</span>
+                        <span><i class="bi bi-code-slash text-warning me-1"></i>.NET 9 MVC</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
