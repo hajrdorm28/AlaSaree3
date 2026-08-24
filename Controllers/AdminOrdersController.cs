@@ -19,6 +19,10 @@ namespace AlaSaree3.Controllers
         }
 
         [HttpGet]
+        [Route("AdminOrders")]
+        [Route("AdminOrders/Index")]
+        [Route("Admin/Orders")]
+        [Route("Admin/Orders/Index")]
         public async Task<IActionResult> Index()
         {
             var orders = await _orderService.GetAllOrdersAsync();
@@ -26,21 +30,40 @@ namespace AlaSaree3.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Details(int id)
+        [Route("AdminOrders/Details/{id:int?}")]
+        [Route("AdminOrders/ManageOrder/{id:int?}")]
+        [Route("Admin/Orders/Details/{id:int?}")]
+        [Route("Admin/Orders/ManageOrder/{id:int?}")]
+        public async Task<IActionResult> Details(int? id, int? orderId)
         {
+            int targetId = id ?? orderId ?? 0;
+            if (targetId <= 0)
+            {
+                return NotFound();
+            }
+
             var currentUserId = _userManager.GetUserId(User)!;
-            var orderDetails = await _orderService.GetOrderDetailsAsync(id, currentUserId, isSeller: false, isAdmin: true);
+            var orderDetails = await _orderService.GetOrderDetailsAsync(targetId, currentUserId, isSeller: false, isAdmin: true);
 
             if (orderDetails == null)
             {
                 return NotFound();
             }
 
-            return View(orderDetails);
+            return View("Details", orderDetails);
+        }
+
+        [HttpGet]
+        [Route("AdminOrders/Manage/{id:int?}")]
+        public Task<IActionResult> ManageOrder(int? id, int? orderId)
+        {
+            return Details(id, orderId);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Route("AdminOrders/UpdateStatus")]
+        [Route("Admin/Orders/UpdateStatus")]
         public async Task<IActionResult> UpdateStatus(int orderId, OrderStatus status)
         {
             var currentUserId = _userManager.GetUserId(User)!;
