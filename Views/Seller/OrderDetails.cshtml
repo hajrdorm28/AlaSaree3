@@ -1,0 +1,189 @@
+﻿@model OrderDetailsViewModel
+@{
+    ViewData["Title"] = $"Manage Order #{Model.Order.Id}";
+
+    var badgeClass = Model.Order.Status switch
+    {
+        OrderStatus.Pending => "badge-status-pending",
+        OrderStatus.Confirmed => "badge-status-confirmed",
+        OrderStatus.Shipped => "badge-status-shipped",
+        OrderStatus.Delivered => "badge-status-delivered",
+        OrderStatus.Cancelled => "badge-status-cancelled",
+        _ => "bg-secondary"
+    };
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <h2 class="h3 fw-bold mb-0"><i class="bi bi-receipt text-primary me-2"></i>Order #@Model.Order.Id</h2>
+            <span class="badge @badgeClass px-3 py-2 rounded-pill">@Model.Order.Status</span>
+        </div>
+        <p class="text-muted small mb-0">Placed on @Model.Order.OrderDate.ToString("MMMM dd, yyyy HH:mm") UTC &bull; Customer: <span class="fw-semibold text-dark">@Model.Order.Customer.FullName</span></p>
+    </div>
+
+    <div>
+        <a asp-controller="AdminOrders" asp-action="Index" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i>Back to All Orders
+        </a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Order Items -->
+    <div class="col-lg-8">
+        <div class="custom-card p-4 mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0"><i class="bi bi-box me-2 text-primary"></i>Purchased Items (@Model.Items.Sum(i => i.Quantity) total)</h5>
+                <span class="badge bg-light text-secondary border">@Model.Items.Count() Unique SKU(s)</span>
+            </div>
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Product Details</th>
+                            <th class="text-center">Unit Price</th>
+                            <th class="text-center">Qty</th>
+                            <th class="text-end">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Items)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <img src="@(string.IsNullOrEmpty(item.Product.ImageUrl) ? "/images/placeholder.jpg" : item.Product.ImageUrl)" 
+                                             alt="@item.Product.Name" 
+                                             class="rounded border" 
+                                             style="width: 52px; height: 52px; object-fit: cover;" />
+                                        <div>
+                                            <div class="fw-semibold small">
+                                                <a asp-controller="Product" asp-action="Details" asp-route-id="@item.ProductId" class="text-dark text-decoration-none" target="_blank">
+                                                    @item.Product.Name <i class="bi bi-box-arrow-up-right small text-muted" style="font-size: 0.75rem;"></i>
+                                                </a>
+                                            </div>
+                                            <div class="text-muted small" style="font-size: 0.75rem;">
+                                                <span>Vendor: <strong class="text-secondary">@item.Product.Seller.FullName</strong></span>
+                                                @if (!string.IsNullOrEmpty(item.Product.Seller.Email))
+                                                {
+                                                    <span>(@item.Product.Seller.Email)</span>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-center small fw-semibold">$@item.UnitPrice.ToString("N2")</td>
+                                <td class="text-center small"><span class="badge bg-light text-dark border px-2 py-1">@item.Quantity</span></td>
+                                <td class="text-end small fw-bold text-primary">$@((item.UnitPrice * item.Quantity).ToString("N2"))</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Customer & Delivery Notes -->
+        <div class="custom-card p-4">
+            <h5 class="fw-bold mb-3"><i class="bi bi-chat-left-text me-2 text-primary"></i>Customer Special Instructions</h5>
+            @if (!string.IsNullOrWhiteSpace(Model.Order.Notes))
+            {
+                <div class="p-3 bg-light rounded border text-secondary small">
+                    <i class="bi bi-quote fs-5 text-muted align-middle me-1"></i>@Model.Order.Notes
+                </div>
+            }
+            else
+            {
+                <p class="text-muted small mb-0 fst-italic">No additional delivery instructions provided by customer.</p>
+            }
+        </div>
+    </div>
+
+    <!-- Sidebar: Shipping, Summary & Admin Controls -->
+    <div class="col-lg-4">
+        <!-- Customer & Shipping Information -->
+        <div class="custom-card p-4 mb-4">
+            <h5 class="fw-bold mb-3"><i class="bi bi-truck me-2 text-primary"></i>Customer &amp; Shipping</h5>
+            
+            <div class="mb-3">
+                <span class="text-muted small d-block">Customer</span>
+                <span class="fw-semibold text-dark">@Model.Order.Customer.FullName</span>
+                <div class="text-muted small">@Model.Order.Customer.Email</div>
+            </div>
+
+            <div class="mb-3">
+                <span class="text-muted small d-block">Contact Phone</span>
+                <span class="fw-semibold text-dark"><i class="bi bi-telephone me-1 text-muted"></i>@Model.Order.PhoneNumber</span>
+            </div>
+
+            <div class="mb-0">
+                <span class="text-muted small d-block">Shipping Address</span>
+                <div class="fw-semibold text-dark">
+                    @Model.Order.ShippingAddress<br />
+                    <span>@Model.Order.City, @Model.Order.PostalCode</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Financial Summary -->
+        <div class="custom-card p-4 mb-4">
+            <h5 class="fw-bold mb-3"><i class="bi bi-wallet2 me-2 text-primary"></i>Payment Summary</h5>
+            
+            <div class="d-flex justify-content-between mb-2 small text-muted">
+                <span>Items Subtotal</span>
+                <span class="fw-semibold text-dark">$@Model.Order.TotalAmount.ToString("N2")</span>
+            </div>
+            <div class="d-flex justify-content-between mb-3 small text-muted">
+                <span>Standard Delivery</span>
+                <span class="text-success fw-semibold">FREE</span>
+            </div>
+            <hr class="my-2">
+            <div class="d-flex justify-content-between align-items-center pt-2">
+                <span class="fw-bold fs-6">Order Total</span>
+                <span class="fw-bold text-primary fs-4">$@Model.Order.TotalAmount.ToString("N2")</span>
+            </div>
+        </div>
+
+        <!-- Admin Order Controls -->
+        <div class="custom-card p-4 border border-warning border-opacity-50">
+            <div class="d-flex align-items-center gap-2 mb-3">
+                <div class="bg-warning bg-opacity-10 p-2 rounded text-warning">
+                    <i class="bi bi-gear-wide-connected"></i>
+                </div>
+                <div>
+                    <h6 class="fw-bold mb-0">Admin Order Actions</h6>
+                    <span class="text-muted" style="font-size: 0.75rem;">Platform Order Management</span>
+                </div>
+            </div>
+
+            <form asp-controller="AdminOrders" asp-action="UpdateStatus" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="orderId" value="@Model.Order.Id" />
+
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold text-muted">Update Status</label>
+                    <select name="status" class="form-select form-select-sm" @(Model.Order.Status == OrderStatus.Cancelled ? "disabled" : "")>
+                        <option value="@OrderStatus.Pending" selected="@(Model.Order.Status == OrderStatus.Pending)">Pending</option>
+                        <option value="@OrderStatus.Confirmed" selected="@(Model.Order.Status == OrderStatus.Confirmed)">Confirmed</option>
+                        <option value="@OrderStatus.Shipped" selected="@(Model.Order.Status == OrderStatus.Shipped)">Shipped</option>
+                        <option value="@OrderStatus.Delivered" selected="@(Model.Order.Status == OrderStatus.Delivered)">Delivered</option>
+                        <option value="@OrderStatus.Cancelled" selected="@(Model.Order.Status == OrderStatus.Cancelled)">Cancelled</option>
+                    </select>
+                </div>
+
+                @if (Model.Order.Status != OrderStatus.Cancelled)
+                {
+                    <button type="submit" class="btn btn-primary btn-sm w-100 mb-2">
+                        <i class="bi bi-check2-circle me-1"></i>Save Status Change
+                    </button>
+                }
+                else
+                {
+                    <div class="alert alert-danger py-2 px-3 small mb-0">
+                        <i class="bi bi-info-circle me-1"></i>This order has been cancelled and finalized.
+                    </div>
+                }
+            </form>
+        </div>
+    </div>
+</div>
