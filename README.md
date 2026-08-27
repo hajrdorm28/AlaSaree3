@@ -155,44 +155,7 @@ erDiagram
 9. **Authentication Cookie Security**: Configured with `HttpOnly = true`, `SameSiteMode.Lax`, `SecurePolicy = Always`, and 15-minute account lockout on 5 consecutive failed attempts.
 10. **Security Headers**: Custom middleware injects `X-Content-Type-Options: nosniff`, `X-Frame-Options: SAMEORIGIN`, `Referrer-Policy: strict-origin-when-cross-origin`, and `Content-Security-Policy`.
 
----
-
-## 8. Setup & How to Run
-
-### Prerequisites
-* [.NET 9.0 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)
-* SQL Server LocalDB (included with Visual Studio or installed via `sqllocaldb`)
-
-### Running the Application
-
-1. Clone or navigate to the project directory:
-   ```powershell
-   cd "C:\Users\HD TECH\.gemini\antigravity-ide\scratch\AlaSaree3"
-   ```
-
-2. Restore NuGet dependencies:
-   ```powershell
-   dotnet restore
-   ```
-
-3. Update the database schema (Migrations auto-apply on first launch, or apply manually):
-   ```powershell
-   dotnet ef database update
-   ```
-
-4. Run the web application:
-   ```powershell
-   dotnet run
-   ```
-
-5. Open your web browser and navigate to:
-   ```text
-   https://localhost:5001   or   http://localhost:5000
-   ```
-
----
-
-## 9. Development Seed Accounts
+## 8. Development Seed Accounts
 
 The application automatically seeds roles, test accounts, categories, products, orders, and reviews upon first startup.
 
@@ -204,25 +167,5 @@ The application automatically seeds roles, test accounts, categories, products, 
 | **Customer (Alexander)**| `customer1@alasaree3.com` | `Customer@123456!` |
 | **Customer (Sophia)** | `customer2@alasaree3.com` | `Customer@123456!` |
 
-> [!NOTE]
-> For production deployments, admin credentials and connection strings should be configured via Environment Variables or Azure Key Vault, never committed in source code.
 
----
 
-## 10. Automated Tests
-
-The automated test suite in `AlaSaree3.Tests` verifies security constraints, checkout transactions, verified reviews, category safety, and file upload validations.
-
-To run tests:
-```powershell
-cd "C:\Users\HD TECH\.gemini\antigravity-ide\scratch\AlaSaree3.Tests"
-dotnet test
-```
-
----
-
-## 11. University Graduation Project Summary
-* **Author**: Graduation Project Team
-* **Architecture**: ASP.NET Core 9.0 MVC Monolith
-* **Database**: Microsoft SQL Server / LocalDB
-* **Target Audience**: Multi-Vendor E-Commerce Platform Evaluators
