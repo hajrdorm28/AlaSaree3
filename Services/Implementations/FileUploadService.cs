@@ -17,7 +17,7 @@ namespace AlaSaree3.Services.Implementations
             { ".jpeg", new List<byte[]> { new byte[] { 0xFF, 0xD8, 0xFF } } },
             { ".jpg", new List<byte[]> { new byte[] { 0xFF, 0xD8, 0xFF } } },
             { ".png", new List<byte[]> { new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A } } },
-            { ".webp", new List<byte[]> { new byte[] { 0x52, 0x49, 0x46, 0x46 } } } // 'RIFF'
+            { ".webp", new List<byte[]> { new byte[] { 0x52, 0x49, 0x46, 0x46 } } } 
         };
 
         public FileUploadService(IWebHostEnvironment environment, IConfiguration configuration)
@@ -114,7 +114,7 @@ namespace AlaSaree3.Services.Implementations
             }
             catch
             {
-                // Silently handle or log if file deletion fails
+               
             }
         }
     }
