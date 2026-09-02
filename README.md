@@ -11,9 +11,15 @@
 
 ## 1. Project Description
 
-**AlaSaree3** is a production-grade, secure, multi-vendor e-commerce web application designed as a university graduation project. Built as a monolithic ASP.NET Core MVC application in C#, it connects independent verified vendors (Sellers) with retail buyers (Customers) under the centralized governance of Administrators.
-
-The application adheres to enterprise software engineering standards, emphasizing **data integrity, transactional security, resource ownership isolation, defense against common web vulnerabilities (CSRF, XSS, Overposting, SQL Injection, File Upload Exploits), and strict business rules**.
+**AlaSaree3** is a full-stack e-commerce marketplace that connects three types of users — Customers, Sellers, and
+Administrators — in a single platform. Customers can browse and purchase products from multiple independent sellers,
+sellers can manage their own storefronts and orders, and administrators oversee the whole marketplace (categories, users,
+and seller approvals).
+The application is built with ASP.NET Core MVC on .NET 9, using Entity Framework Core with SQL Server for data
+access, and ASP.NET Core Identity with cookie-based authentication and role-based authorization (Customer, Seller,
+Admin). Razor views styled with Bootstrap 5 and jQuery render the frontend directly from the server, following a
+layered architecture where Controllers call Services (interfaces with implementations) that talk to the EF Core
+DbContext, with dedicated ViewModels for each feature area.
 
 ---
 
