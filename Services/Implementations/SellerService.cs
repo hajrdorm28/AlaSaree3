@@ -116,15 +116,6 @@ namespace AlaSaree3.Services.Implementations
                 return (false, "User is already assigned the Seller role.");
             }
 
-            // Remove Customer role if present (exclusive role transition)
-            if (await _userManager.IsInRoleAsync(user, "Customer"))
-            {
-                var removeResult = await _userManager.RemoveFromRoleAsync(user, "Customer");
-                if (!removeResult.Succeeded)
-                {
-                    return (false, string.Join(", ", removeResult.Errors.Select(e => e.Description)));
-                }
-            }
 
             // Assign the Seller role to the SAME ApplicationUser
             var roleResult = await _userManager.AddToRoleAsync(user, "Seller");
