@@ -23,8 +23,8 @@ namespace AlaSaree3.Data
             }
 
             // 2. Seed Admin User
-            var adminEmail = configuration["AdminUserSeed:Email"] ?? "admin@alasaree3.com";
-            var adminPassword = configuration["AdminUserSeed:Password"] ?? "Admin@Password123!";
+            var adminEmail = configuration["AdminUserSeed:Email"] ?? "ZiadWael@gmail.com";
+            var adminPassword = configuration["AdminUserSeed:Password"] ?? "ziad@Password123!";
             var adminFullName = configuration["AdminUserSeed:FullName"] ?? "System Administrator";
 
             var adminUser = await userManager.FindByEmailAsync(adminEmail);
