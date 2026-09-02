@@ -65,7 +65,7 @@
                     </ul>
 
                     <div class="d-flex align-items-center gap-3">
-                        @if (User.Identity?.IsAuthenticated == true && !User.IsInRole("Admin") && !User.IsInRole("Seller"))
+                        @if (User.Identity?.IsAuthenticated == true && !User.IsInRole("Admin"))
                         {
                             <a asp-controller="Wishlist" asp-action="Index" class="btn btn-outline-light btn-sm position-relative rounded-pill px-3">
                                 <i class="bi bi-heart"></i>
