@@ -18,5 +18,7 @@ namespace AlaSaree3.ViewModels.Product
 
         public bool HasPreviousPage => CurrentPage > 1;
         public bool HasNextPage => CurrentPage < TotalPages;
+
+        public HashSet<int> WishlistProductIds { get; set; } = new HashSet<int>();
     }
 }

@@ -116,6 +116,9 @@ namespace AlaSaree3.Services.Implementations
                 return (false, "User is already assigned the Seller role.");
             }
 
+            // Keep the Customer role so the user can still shop, order, and use the
+            // wishlist/cart after becoming a Seller. Sellers gain the Seller role in
+            // ADDITION to Customer, rather than replacing it.
 
             // Assign the Seller role to the SAME ApplicationUser
             var roleResult = await _userManager.AddToRoleAsync(user, "Seller");

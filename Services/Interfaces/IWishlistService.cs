@@ -9,5 +9,6 @@ namespace AlaSaree3.Services.Interfaces
         Task<(bool Success, string? ErrorMessage)> RemoveFromWishlistAsync(string customerId, int productId);
         Task<bool> IsInWishlistAsync(string customerId, int productId);
         Task<int> GetWishlistItemCountAsync(string customerId);
+        Task<HashSet<int>> GetWishlistProductIdsAsync(string customerId);
     }
 }

@@ -115,5 +115,15 @@ namespace AlaSaree3.Services.Implementations
                 .Where(wi => wi.Wishlist.CustomerId == customerId)
                 .CountAsync();
         }
+
+        public async Task<HashSet<int>> GetWishlistProductIdsAsync(string customerId)
+        {
+            var ids = await _context.WishlistItems
+                .Where(wi => wi.Wishlist.CustomerId == customerId)
+                .Select(wi => wi.ProductId)
+                .ToListAsync();
+
+            return ids.ToHashSet();
+        }
     }
 }

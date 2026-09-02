@@ -30,15 +30,15 @@
             {
                 <li><a class="dropdown-item py-2 text-warning fw-semibold" asp-controller="Seller" asp-action="Dashboard"><i class="bi bi-shop me-2"></i>Seller Dashboard</a></li>
             }
-                @if (!User.IsInRole("Seller") && !User.IsInRole("Admin"))
-                {
-                    <li><a class="dropdown-item py-2 text-success" asp-controller="Seller" asp-action="RequestSeller"><i class="bi bi-briefcase me-2"></i>Become a Seller</a></li>
-                }
-                @if (!User.IsInRole("Admin"))
-                {
-                    <li><a class="dropdown-item py-2" asp-controller="Order" asp-action="MyOrders"><i class="bi bi-box-seam me-2"></i>My Orders</a></li>
-                    <li><a class="dropdown-item py-2" asp-controller="Wishlist" asp-action="Index"><i class="bi bi-heart me-2"></i>My Wishlist</a></li>
-                }
+            @if (!User.IsInRole("Seller") && !User.IsInRole("Admin"))
+            {
+                <li><a class="dropdown-item py-2 text-success" asp-controller="Seller" asp-action="RequestSeller"><i class="bi bi-briefcase me-2"></i>Become a Seller</a></li>
+            }
+            @if (!User.IsInRole("Admin"))
+            {
+                <li><a class="dropdown-item py-2" asp-controller="Order" asp-action="MyOrders"><i class="bi bi-box-seam me-2"></i>My Orders</a></li>
+                <li><a class="dropdown-item py-2" asp-controller="Wishlist" asp-action="Index"><i class="bi bi-heart me-2"></i>My Wishlist</a></li>
+            }
 
             <li><hr class="dropdown-divider"></li>
             <li>
