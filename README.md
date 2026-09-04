@@ -1,4 +1,13 @@
 # AlaSaree3 — Secure Multi-Vendor E-Commerce Platform
+### University Graduation Project (ASP.NET Core MVC Monolithic Web Application)
+
+[![Framework: .NET 9](https://img.shields.io/badge/Framework-.NET%209.0%20MVC-512bd4.svg)](https://dotnet.microsoft.com/)
+[![Database: SQL Server](https://img.shields.io/badge/Database-SQL%20Server%20%2F%20LocalDB-CC292B.svg)](https://www.microsoft.com/sql-server)
+[![ORM: EF Core 9](https://img.shields.io/badge/ORM-Entity%20Framework%20Core%209-512bd4.svg)](https://learn.microsoft.com/ef/)
+[![Security: RBAC & Ownership](https://img.shields.io/badge/Security-RBAC%20%26%20Resource%20Ownership-10b981.svg)]()
+[![Tests: xUnit & InMemory EF](https://img.shields.io/badge/Tests-Automated%20Security%20%26%20Unit-blue.svg)]()
+
+---
 
 ## 1. Project Description
 

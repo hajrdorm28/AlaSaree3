@@ -211,5 +211,64 @@ namespace AlaSaree3.Controllers
 
             return RedirectToAction(nameof(SellerRequests));
         }
+
+        [HttpGet]
+        public async Task<IActionResult> ContactMessages(ContactMessageStatus? status)
+        {
+            var query = _context.ContactMessages
+                .Include(c => c.User)
+                .AsQueryable();
+
+            if (status.HasValue)
+            {
+                query = query.Where(c => c.Status == status.Value);
+            }
+
+            var messages = await query
+                .OrderByDescending(c => c.CreatedAt)
+                .AsNoTracking()
+                .ToListAsync();
+
+            ViewBag.SelectedStatus = status;
+            return View(messages);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> MarkContactMessageInProgress(int id)
+        {
+            var message = await _context.ContactMessages.FindAsync(id);
+            if (message == null)
+            {
+                TempData["Error"] = "Message not found.";
+                return RedirectToAction(nameof(ContactMessages));
+            }
+
+            message.Status = ContactMessageStatus.InProgress;
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Message marked as in progress.";
+            return RedirectToAction(nameof(ContactMessages));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResolveContactMessage(int id, string? adminNotes)
+        {
+            var message = await _context.ContactMessages.FindAsync(id);
+            if (message == null)
+            {
+                TempData["Error"] = "Message not found.";
+                return RedirectToAction(nameof(ContactMessages));
+            }
+
+            message.Status = ContactMessageStatus.Resolved;
+            message.ResolvedAt = DateTime.UtcNow;
+            message.AdminNotes = adminNotes;
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Message marked as resolved.";
+            return RedirectToAction(nameof(ContactMessages));
+        }
     }
 }

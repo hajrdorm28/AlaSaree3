@@ -21,6 +21,7 @@ namespace AlaSaree3.Data
         public DbSet<Order> Orders => Set<Order>();
         public DbSet<OrderItem> OrderItems => Set<OrderItem>();
         public DbSet<Review> Reviews => Set<Review>();
+        public DbSet<ContactMessage> ContactMessages => Set<ContactMessage>();
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -169,6 +170,19 @@ namespace AlaSaree3.Data
 
                 entity.HasIndex(sr => sr.UserId);
                 entity.HasIndex(sr => sr.Status);
+            });
+
+            // ContactMessage configuration
+            builder.Entity<ContactMessage>(entity =>
+            {
+                entity.HasOne(cm => cm.User)
+                    .WithMany()
+                    .HasForeignKey(cm => cm.UserId)
+                    .OnDelete(DeleteBehavior.SetNull);
+
+                entity.HasIndex(cm => cm.Status);
+                entity.HasIndex(cm => cm.UserId);
+                entity.HasIndex(cm => cm.CreatedAt);
             });
         }
     }
