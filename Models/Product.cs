@@ -27,14 +27,6 @@ namespace AlaSaree3.Models
         [StringLength(500)]
         public string ImageUrl { get; set; } = "/images/products/22.png";
 
-        /// <summary>
-        /// Optional comma-separated list of available sizes (e.g. "S,M,L,XL"). Null/empty means
-        /// the product is not size-based (electronics, home goods, etc.). Used by the AI shopping
-        /// assistant to answer availability questions without guessing.
-        /// </summary>
-        [StringLength(200)]
-        public string? AvailableSizes { get; set; }
-
         public int CategoryId { get; set; }
         public virtual Category Category { get; set; } = null!;
 
