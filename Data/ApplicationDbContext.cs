@@ -23,12 +23,6 @@ namespace AlaSaree3.Data
         public DbSet<Review> Reviews => Set<Review>();
         public DbSet<ContactMessage> ContactMessages => Set<ContactMessage>();
 
-        // AI Shopping Assistant
-        public DbSet<PlatformPolicy> PlatformPolicies => Set<PlatformPolicy>();
-        public DbSet<SellerPolicy> SellerPolicies => Set<SellerPolicy>();
-        public DbSet<ChatConversation> ChatConversations => Set<ChatConversation>();
-        public DbSet<ChatMessage> ChatMessages => Set<ChatMessage>();
-
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -180,54 +174,15 @@ namespace AlaSaree3.Data
 
             // ContactMessage configuration
             builder.Entity<ContactMessage>(entity =>
-            // ==========================================
-            // AI Shopping Assistant configuration
-            // ==========================================
-
-            builder.Entity<PlatformPolicy>(entity =>
-            {
-                entity.HasIndex(p => p.Key).IsUnique();
-            });
-
-            builder.Entity<SellerPolicy>(entity =>
-            {
-                entity.HasOne(sp => sp.Seller)
-                    .WithMany()
-                    .HasForeignKey(sp => sp.SellerId)
-                    .OnDelete(DeleteBehavior.Cascade);
-
-                entity.HasIndex(sp => sp.SellerId).IsUnique();
-            });
-
-            builder.Entity<ChatConversation>(entity =>
             {
                 entity.HasOne(cm => cm.User)
-                entity.HasOne(c => c.Customer)
-                    .WithMany()
-                    .HasForeignKey(c => c.CustomerId)
-                    .OnDelete(DeleteBehavior.SetNull);
-
-                entity.HasOne(c => c.ContextProduct)
                     .WithMany()
                     .HasForeignKey(cm => cm.UserId)
-                    .HasForeignKey(c => c.ContextProductId)
                     .OnDelete(DeleteBehavior.SetNull);
 
                 entity.HasIndex(cm => cm.Status);
                 entity.HasIndex(cm => cm.UserId);
                 entity.HasIndex(cm => cm.CreatedAt);
-                entity.HasIndex(c => c.SessionKey);
-                entity.HasIndex(c => c.CustomerId);
-            });
-
-            builder.Entity<ChatMessage>(entity =>
-            {
-                entity.HasOne(m => m.Conversation)
-                    .WithMany(c => c.Messages)
-                    .HasForeignKey(m => m.ConversationId)
-                    .OnDelete(DeleteBehavior.Cascade);
-
-                entity.HasIndex(m => m.ConversationId);
             });
         }
     }
