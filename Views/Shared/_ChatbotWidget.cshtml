@@ -1,0 +1,39 @@
+@{
+    int? currentProductId = ViewBag.CurrentProductId as int?;
+}
+
+<div id="ai-chat-root" data-context-product-id="@currentProductId">
+    <button id="ai-chat-toggle" type="button" aria-label="Open AI shopping assistant" title="Ask the AlaSaree3 Shopping Assistant">
+        <i class="bi bi-stars"></i>
+    </button>
+
+    <div id="ai-chat-panel" class="d-none" role="dialog" aria-label="AI Shopping Assistant">
+        <div id="ai-chat-header">
+            <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-stars fs-5"></i>
+                <div>
+                    <div class="fw-semibold">AlaSaree3 Assistant</div>
+                    <div class="small opacity-75">Ask about products, orders & policies</div>
+                </div>
+            </div>
+            <button id="ai-chat-close" type="button" aria-label="Close chat">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+
+        <div id="ai-chat-messages" aria-live="polite"></div>
+
+        <div id="ai-chat-typing" class="d-none px-3 pb-1 small text-muted">
+            <i class="bi bi-three-dots"></i> Assistant is thinking...
+        </div>
+
+        <form id="ai-chat-form" autocomplete="off">
+            @Html.AntiForgeryToken()
+            <input type="text" id="ai-chat-input" name="message" placeholder="e.g. Show me a dress under $100 for a wedding"
+                   maxlength="1000" required />
+            <button type="submit" id="ai-chat-send" aria-label="Send message">
+                <i class="bi bi-send-fill"></i>
+            </button>
+        </form>
+    </div>
+</div>

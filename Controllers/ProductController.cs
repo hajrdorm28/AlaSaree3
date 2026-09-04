@@ -42,6 +42,7 @@ namespace AlaSaree3.Controllers
                 return NotFound();
             }
 
+            ViewBag.CurrentProductId = id;
             return View(viewModel);
         }
     }

@@ -65,6 +65,19 @@ builder.Services.AddScoped<IWishlistService, WishlistService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IReviewService, ReviewService>();
 
+// 5b. Register AI Shopping Assistant services
+builder.Services.AddScoped<IPolicyService, PolicyService>();
+builder.Services.AddScoped<IAiQueryService, AiQueryService>();
+builder.Services.AddScoped<IChatbotService, ChatbotService>();
+
+// 5c. HTTP client used to talk to the separate Python AI Assistant microservice.
+var aiServiceBaseUrl = builder.Configuration["AiService:BaseUrl"] ?? "http://localhost:8001";
+builder.Services.AddHttpClient("AiService", client =>
+{
+    client.BaseAddress = new Uri(aiServiceBaseUrl);
+    client.Timeout = TimeSpan.FromSeconds(30);
+});
+
 // 6. Register MVC Controllers and Views
 builder.Services.AddControllersWithViews();
 
@@ -79,6 +92,7 @@ using (var scope = app.Services.CreateScope())
         var context = services.GetRequiredService<ApplicationDbContext>();
         await context.Database.MigrateAsync();
         await SeedData.InitializeAsync(services, app.Configuration);
+        await ChatbotSeedData.InitializeAsync(services);
     }
     catch (Exception ex)
     {
